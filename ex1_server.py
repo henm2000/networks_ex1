@@ -14,7 +14,9 @@ def main():
     sockets = [server_socket]
     newsockets = [newserver_socket]
     while True:
+        print('1')
         rlist,wlist,_= select.select(sockets,sockets,sockets)
+        print('2')
         for skt in newsockets:
             if skt.sct in rlist:
                 if skt.sct is server_socket:
@@ -23,33 +25,39 @@ def main():
                     newtemp = newsocket(temp)
                     newsockets.append(newtemp)
                     newtemp.answer.append("Welcome! Please log in")
+                    print('1')
                 else:
                     data = recv_all_strings(skt.sct)
+                    print(data)
                     if skt.connected == False:
-                        check_connection(data,path,skt)
+                        login(data,path,skt)
                     #handling other functions 
             if skt.sct in wlist:     
                 for ans in skt.answer:
                     data = ans.encode()
                     skt.sct.sendall(data)
+                skt.answer = []
 
 
                        
-def  check_connection(data,path,newskt):
+def  login(data,path,newskt):
     users,passwords = data.split("\n")
     user1, user2 = users.split(": ") 
     password1, password2 = passwords.split(": ")
     if user1 !="User" or password1 !="Password":
+        print(f"{user1} {user2} {password1} {password2}")
         newskt.answer.append("Failed to login")
         return None
     with open(path,"r") as file:
         for line in file:
-            correct_user,correct_password = line.split("\t")
+            print(line)
+            correct_user, correct_password = line.split()
+            print(correct_user)
             if user2 == correct_user and password2 == correct_password:
                 newskt.connected = True
-                newskt.answer.append(f"Hi {user2}, good to see you.")
+                newskt.answer.append(f"Hi {user2}, good to see you")
                 return None
-        newskt.answer.append("Failed to login.")
+        newskt.answer.append("Failed to login")
     return None
 
     
@@ -61,7 +69,7 @@ def recv_all_strings(sock):
     while True:
             chunk = sock.recv(4096)
             data += chunk
-            rlist,_,__ = select.select([sock],[sock],[sock])
+            rlist,_,__ = select.select([sock],[sock],[sock],1)
             if sock not in rlist:  
                 break
     return data.decode('utf-8')
