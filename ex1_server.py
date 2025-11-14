@@ -31,22 +31,44 @@ def main():
                     print(data)
                     if skt.connected == False:
                         login(data,path,skt)
-                    #handling other functions 
+
+
             if skt.sct in wlist:     
                 for ans in skt.answer:
                     data = ans.encode()
                     skt.sct.sendall(data)
+                    if "quit" in skt.answer or "ERROR" in skt.answer:
+                        print("ERROR")
+                        close(skt,newsockets,sockets)
                 skt.answer = []
 
 
+
+def close(newskt,newsockets,sockets):
+    print("close")
+    sockets.remove(newskt.sct)
+    newsockets.remove(newskt)
+    newskt.sct.close()
+    return None
+
+            
+    
+
                        
 def  login(data,path,newskt):
-    users,passwords = data.split("\n")
-    user1, user2 = users.split(": ") 
-    password1, password2 = passwords.split(": ")
+    try:
+        users,passwords = data.split("\n")
+        user1, user2 = users.split(": ") 
+        password1, password2 = passwords.split(": ")
+    except ValueError:
+        user1 = None
+        password1 = None
+        user2 = None
+        password2 = None
+    print(2)
     if user1 !="User" or password1 !="Password":
         print(f"{user1} {user2} {password1} {password2}")
-        newskt.answer.append("Failed to login")
+        newskt.answer.append("ERROR")
         return None
     with open(path,"r") as file:
         for line in file:
@@ -60,7 +82,7 @@ def  login(data,path,newskt):
         newskt.answer.append("Failed to login")
     return None
 
-    
+   
 
 
 
@@ -70,7 +92,7 @@ def recv_all_strings(sock):
             chunk = sock.recv(4096)
             data += chunk
             rlist,_,__ = select.select([sock],[sock],[sock],1)
-            if sock not in rlist:  
+            if sock not in rlist or not chunk:  
                 break
     return data.decode('utf-8')
 

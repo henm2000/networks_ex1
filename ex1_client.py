@@ -41,7 +41,7 @@ def recv_all_strings(sock):
             chunk = sock.recv(4096)
             data += chunk
             rlist,wlist,xlist = select.select([sock],[sock],[sock],1)
-            if sock not in rlist:  
+            if sock not in rlist or not chunk:  
                 break
     return data.decode('utf-8')
 
