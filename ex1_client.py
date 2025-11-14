@@ -29,10 +29,19 @@ def main():
             print(data)
             if data != "Failed to login":
                 break
-        #while True:
-            #commands
         data = recv_all_strings(client_socket)
         print(data)
+        while True:
+            command = input("please enter your command ")
+            if command =="quit":
+                client_socket.sendall(command.encode())
+                client_socket.close()
+                break
+            else:
+                client_socket.sendall(command.encode())
+                data = recv_all_strings(client_socket)
+                print(data)
+
 
 
 def recv_all_strings(sock):
