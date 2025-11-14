@@ -29,7 +29,7 @@ def main():
                     print(data)
                     if newskt.connected == False:
                         login(data,path,newskt)
-                    if data == "quit":
+                    elif data == "quit":
                         newskt.answer.append("quit")
                     else:
                         try:
@@ -57,9 +57,10 @@ def main():
                 for ans in newskt.answer:
                     data = ans.encode()
                     newskt.sct.sendall(data)
-                    if "quit" in newskt.answer or "ERROR" in newskt.answer:
+                    if ans in {"ERROR","quit"}:
                         print("ERROR")
                         close(newskt,newsockets,sockets)
+                        break
                 newskt.answer = []
 
 
@@ -96,6 +97,7 @@ def caesar(data):
         key = int(data[-1])
         data.pop(-1)
         plaintext = " ".join(data)
+        plaintext = plaintext.lower()
     except ValueError:
         return "error: invalid input"
     for char in plaintext:
@@ -105,10 +107,7 @@ def caesar(data):
     for char in plaintext:
         if char.isspace():
             ciphertext_chars.append(" ")
-        elif char.isupper():
-            new_ord = (ord(char) - 65 + key) % 26 + 65
-            ciphertext_chars.append(chr(new_ord))
-        elif char.islower():
+        else:
             new_ord = (ord(char) - 97 + key) % 26 + 97
             ciphertext_chars.append(chr(new_ord))
 

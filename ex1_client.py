@@ -12,9 +12,7 @@ def main():
         port = int(sys.argv[2])
     client_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
     client_socket.connect((hostname,port))
-    print('hello')
     data = recv_all_strings(client_socket)
-    print('2')
     print(data)
     if data != "Welcome! Please log in":
         print("error")
@@ -29,8 +27,6 @@ def main():
             print(data)
             if data != "Failed to login":
                 break
-        data = recv_all_strings(client_socket)
-        print(data)
         while True:
             command = input("please enter your command ")
             if command =="quit":
