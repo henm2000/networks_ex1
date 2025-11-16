@@ -128,8 +128,16 @@ def main():
                         send_with_header(newskt.sct, ans)
                         
                         # --- MODIFICATION ---
-                        # Only close the connection if the command was "quit"
+                        # Check for any message that should terminate the connection
+                        is_terminating = False
                         if ans == "quit":
+                            is_terminating = True
+                        elif ans.startswith("ERROR"): # e.g., "ERROR", "ERROR: Unknown command"
+                            is_terminating = True
+                        elif ans.startswith("error:"): # e.g., "error: invalid input"
+                            is_terminating = True
+
+                        if is_terminating:
                             print(f"Closing connection after sending: {ans}")
                             close(newskt, newsockets, sockets)
                         # --- END MODIFICATION ---
