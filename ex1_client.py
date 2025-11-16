@@ -93,8 +93,11 @@ def main():
                     print(data)
 
                     # --- MODIFICATION ---
-                    # Removed the block that checked for "ERROR".
-                    # The client will now just print the error and continue.
+                    # Check for fatal error messages from server
+                    if data.startswith("ERROR") or data.startswith("error:"):
+                        print("Server reported a fatal error. Closing connection.")
+                        client_socket.close()
+                        break
                     # --- END MODIFICATION ---
 
     except (ConnectionRefusedError, ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
