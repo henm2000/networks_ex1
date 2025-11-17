@@ -66,7 +66,7 @@ def main():
                 if data != "Failed to login":
                     break
             
-            if not data or data == "Failed to login":
+            if not data or data == "Failed to login" or data.startswith("ERROR") or data.startswith("error:"):
                 client_socket.close()
                 return
 
