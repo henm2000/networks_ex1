@@ -95,7 +95,12 @@ def main():
                                     if len(newskt.read_buffer) >= HEADER_SIZE:
                                         header = newskt.read_buffer[:HEADER_SIZE].decode('utf-8')
                                         newskt.bytes_expected = int(header.strip())
-                                        newskt.read_buffer = newskt.read_buffer[HEADER_SIZE:]
+                                        if newskt.bytes_expected == 0:
+                                            print("0")
+                                            newskt.answer.append("ERROR: Unknown command")
+                                            break
+                                        else:
+                                            newskt.read_buffer = newskt.read_buffer[HEADER_SIZE:]
                                     else:
                                         break 
                                 
