@@ -13,7 +13,8 @@ We chose TCP as the transport-layer protocol for this application.
 
 Reasoning:
 
-Reliability: TCP guarantees that all data sent is received, and in the correct order. This is critical for our application, as a single dropped or out-of-order packet could corrupt a command or login attempt, making the application unusable.
+Reliability: TCP guarantees that all data sent is received, and in the correct order. This is critical for our application, as a single dropped or out-of-order packet could corrupt a command or login attempt, making the application unusable, additionally, our protocol doesn't send "real-time" data (e.g video,voice ) we don't need the speed of udp
+and can use the reliabillity of tcp.
 
 Connection-Oriented: The application follows a clear session-based flow (Connect -> Log In -> Send Commands -> Quit). TCP's connection-oriented nature maps perfectly to this, providing a stable "session" for each client.
 
@@ -28,6 +29,8 @@ Core Concept: The 5-Byte Header
 Every single message sent—by either the client or the server—is prefixed with a 5-byte header.
 
 Header Content: This header is a 5-byte ASCII string that represents the exact length of the data message that follows. The number is left-padded with spaces.
+
+limitations: each message from client to server (and vise versa) can contain at most 10^5 - 1 charcters (bytes)
 
 Example 1: To send "Hello" (5 bytes), the sender first sends the header b"5    " followed by b"Hello".
 
