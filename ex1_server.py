@@ -10,24 +10,15 @@ class newsocket:
         self.sct = socket
         self.answer = []
         self.connected = False
-        
-        # New fields for stateful reading
         self.read_buffer = b""
-        self.bytes_expected = 0 # 0 means we are waiting for a new header
+        self.bytes_expected = 0 
 
 def send_with_header(sock, message_str):
-    """
-    Encodes a string, prefixes it with a 5-byte header of its length,
-    and sends it.
-    """
     message_bytes = message_str.encode('utf-8')
     header_bytes = f"{len(message_bytes):<{HEADER_SIZE}}".encode('utf-8')
     sock.sendall(header_bytes + message_bytes)
 
 def process_message(newskt, data, path):
-    """
-    Handles a single, complete message from the client.
-    """
     if newskt.connected == False:
         login(data, path, newskt)
     elif data == "quit":
@@ -50,9 +41,9 @@ def process_message(newskt, data, path):
                 result = caesar(data2)
                 newskt.answer.append(result)
             case _:
-                if data1: # If split worked but command is unknown
+                if data1: 
                     newskt.answer.append("ERROR: Unknown command")
-                # If split failed, ERROR was already appended
+
 
 def main():
     if len(sys.argv) < 2:
@@ -81,7 +72,6 @@ def main():
             
             for newskt in newsockets[:]: 
                 
-                # Handle Reading
                 if newskt.sct in rlist:
                     if newskt.sct is server_socket:
                         temp, _ = newskt.sct.accept()
@@ -125,24 +115,17 @@ def main():
                             close(newskt, newsockets, sockets)
                             continue
                 
-                # Handle Writing
                 if newskt.sct in wlist and newskt.answer:
                     try:
                         ans = newskt.answer.pop(0)
                         send_with_header(newskt.sct, ans)
-                        
-                        # --- MODIFICATION ---
-                        # Check for any message that should terminate the connection
                         is_terminating = False
                         if ans == "quit":
                             is_terminating = True
                         elif ans == "error: invalid input":
-                            # This is the special Caesar (invalid char) error. DO NOT terminate.
                             is_terminating = False
                         elif ans.startswith("ERROR") or ans.startswith("error:"):
-                            # ALL OTHER errors are fatal.
                             is_terminating = True
-                        # --- END MODIFICATION ---
 
                         if is_terminating:
                             print(f"Closing connection after sending: {ans}")
@@ -150,7 +133,7 @@ def main():
                             
                     except (ConnectionResetError, BrokenPipeError, OSError) as e:
                         print(f"Write error: {e}")
-                        if newskt in newsockets: # Avoid double-close
+                        if newskt in newsockets: 
                             close(newskt, newsockets, sockets)
         
         except KeyboardInterrupt:
@@ -200,12 +183,9 @@ def caesar(data):
     if not plaintext:
         return "ERROR: Invalid key/format"
 
-    # --- MODIFICATION ---
-    # This check now returns the NON-FATAL error
     for char in plaintext:
         if not (char.isalpha() or char.isspace()):
             return "error: invalid input"
-    # --- END MODIFICATION ---
             
     ciphertext_chars = []
     for char in plaintext:
