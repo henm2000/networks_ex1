@@ -5,16 +5,12 @@ import select
 HEADER_SIZE = 5
 
 def send_with_header(sock, message_str):
-    """
-    Encodes a string, prefixes it with a 5-byte header of its length,
-    and sends it.
-    """
+
     message_bytes = message_str.encode('utf-8')
     header_bytes = f"{len(message_bytes):<{HEADER_SIZE}}".encode('utf-8')
     sock.sendall(header_bytes + message_bytes)
 
 def recv_n_bytes(sock, n):
-    """Helper function to receive exactly n bytes."""
     data = b""
     while len(data) < n:
         chunk = sock.recv(n - len(data))
@@ -24,16 +20,14 @@ def recv_n_bytes(sock, n):
     return data
 
 def recv_with_header(sock):
-    """
-    Reads the 5-byte header, then reads the specified message length.
-    """
+
     try:
         header_bytes = recv_n_bytes(sock, HEADER_SIZE)
         message_length = int(header_bytes.decode('utf-8').strip())
         message_bytes = recv_n_bytes(sock, message_length)
         return message_bytes.decode('utf-8')
     except (ConnectionError, ValueError):
-        return None # Server disconnected or sent bad data
+        return None 
 
 def main():
     port = 1337
@@ -80,7 +74,7 @@ def main():
                 command = input("please enter your command ")
                 if command == "quit":
                     send_with_header(client_socket, command)
-                    data = recv_with_header(client_socket) # Wait for server ack
+                    data = recv_with_header(client_socket) 
                     print(data)
                     client_socket.close()
                     break
@@ -92,18 +86,14 @@ def main():
                         break
                     print(data)
 
-                    # --- MODIFICATION ---
-                    # Check for fatal error messages from server
                     if data == "error: invalid input":
-                        # This is the non-fatal caesar error.
-                        # Do nothing, just loop again for next command.
                         pass
+
                     elif data.startswith("ERROR") or data.startswith("error:"):
-                        # All other errors are fatal.
                         print("Server reported a fatal error. Closing connection.")
                         client_socket.close()
                         break
-                    # --- END MODIFICATION ---
+
 
     except (ConnectionRefusedError, ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
         print("Connection to server lost.")
